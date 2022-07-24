@@ -269,6 +269,7 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
         jTable1.getModel().setValueAt(result, row, 3);
         array.get(row).addCalcResult(result.toString());
         jTable1.clearSelection();
+        new Calculation().start();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
