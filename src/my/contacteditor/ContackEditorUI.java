@@ -265,11 +265,17 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
         String lowerBound = jTable1.getModel().getValueAt(row, 0).toString();
         String upperBound = jTable1.getModel().getValueAt(row, 1).toString();
         String step = jTable1.getModel().getValueAt(row, 2).toString();
-        Double result = calculateCertainIntegral(Double.parseDouble(lowerBound), Double.parseDouble(upperBound), Double.parseDouble(step));
+        Calculation calculation = new Calculation(Double.parseDouble(lowerBound), Double.parseDouble(upperBound), Double.parseDouble(step));
+        calculation.start();
+        try {
+            calculation.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Double result = calculation.getResult();
         jTable1.getModel().setValueAt(result, row, 3);
         array.get(row).addCalcResult(result.toString());
         jTable1.clearSelection();
-        new Calculation().start();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -299,12 +305,12 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
             File file = new File(fileChooser.getSelectedFile().getAbsolutePath());
             String name = file.getName();
             String[] arrayList = name.split("\\.");
-            if (Objects.equals(arrayList[1], "bin")){
+            if (Objects.equals(arrayList[1], "bin")) {
                 try (FileInputStream fin = new FileInputStream(file)) {
                     byte[] buf = new byte[fin.available()];
                     int jopa, count = 0;
                     while ((jopa = fin.read()) != -1) {
-                        if (count < buf.length){
+                        if (count < buf.length) {
                             buf[count] = (byte) jopa;
                             count++;
                         }
@@ -330,7 +336,7 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
                                 }
                                 if (counter == 4) {
                                     model.addRow(new Object[]{arr[0], arr[1], arr[2], arr[3]});
-                                    for (int pizda = 0; pizda < arr.length; pizda++){
+                                    for (int pizda = 0; pizda < arr.length; pizda++) {
                                         arr[pizda] = null;
                                     }
                                     counter = 0;
@@ -345,14 +351,13 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-            else if (Objects.equals(arrayList[1], "txt")){
+            } else if (Objects.equals(arrayList[1], "txt")) {
                 try {
                     List<String> strings = Files.readAllLines(file.toPath());
                     int count = 0;
                     String[] arr = new String[4];
-                    for (var i : strings){
-                        if (i.isEmpty()){
+                    for (var i : strings) {
+                        if (i.isEmpty()) {
                             continue;
                         }
                         arr[count] = i;
@@ -500,20 +505,6 @@ public class ContackEditorUI extends javax.swing.JFrame implements Serializable 
         });
     }
 
-    private Double calculateCertainIntegral(Double lowerBound, Double upperBound, Double step) {
-        double result = 0;
-        double h = (upperBound - lowerBound) / step; //шаг разбиения отрезка [a;b].
-
-        for (int i = 0; i < step; i++) {
-            result += inFunction(lowerBound + h * (i + 0.5)); //Определяем значение yi подынтегральной функции f(x) в каждой части деления.
-        }
-        result *= h;
-        return result;
-    }
-
-    private double inFunction(double x) {
-        return Math.tan(x);
-    }
 
     private Boolean checkValue(Integer value) {
         if (value > 0.0000001 && value < 1000000) {
